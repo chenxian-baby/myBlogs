@@ -1,9 +1,8 @@
 <template>
-  <div id="nav">
-    <router-link to="/">1  </router-link>
-
-    <router-link to="/about">  2</router-link>
-  </div>
+    <div id="nav">
+      <router-link to="/">1  </router-link>
+      <router-link to="/about">  2</router-link>
+    </div>
   <router-view/>
 </template>
 
@@ -17,8 +16,13 @@
 }
 
 #nav {
+  position: absolute;
+  transform: translateY(400px);
   padding: 30px;
-
+  width: 1860px;
+  background-color: white;
+  opacity: 0.8;
+  text-align: right;
   a {
     font-weight: bold;
     color: #2c3e50;

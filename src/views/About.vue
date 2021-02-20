@@ -1,234 +1,81 @@
 <template>
   <div class="about">
-    <canvas width="500" height="500" style="color: red;"></canvas>
+    <div id="root" />
   </div>
 </template>
 <script>
+import anime from 'animejs'
 export default {
   name:'About',
   data  (){
     return{
     }
   },
-  methods:{
-    a(){
-      // from the Zdog object extract the necessary modules
-      const {
-        Illustration, Ellipse, Rect, Shape, Group, Anchor,
-      } = Zdog;
+  mounted(){
+    class App extends React.Component {
+      handleMouseMove = (e) => {
+        const el = document.getElementById("wrapper");
+        const d = el.getBoundingClientRect();
+        let x = e.clientX - (d.left + Math.floor(d.width / 2));
+        let y = e.clientY - (d.top + Math.floor(d.height / 2));
+        // Invert values
+        x = x - x * 2;
+        y = y - y * 2;
+        document.documentElement.style.setProperty("--scale", 1.6);
+        document.documentElement.style.setProperty("--x", x / 2 + "px");
 
-// set up the illustration within the existing canvas element
-      const illustration = new Illustration({
-        element: 'canvas',
-        dragRotate: true,
-      });
+        document.documentElement.style.setProperty("--y", y / 2 + "px");
+      };
 
-// below the star draw a circle with a fill and no stroke, for the shadow
-      const shadow = new Ellipse({
-        addTo: illustration,
-        diameter: 100,
-        stroke: false,
-        fill: true,
-        color: 'hsla(45, 100%, 58%, 0.4)',
-        translate: { x: 50, y: 100 },
-        rotate: { x: Math.PI / 1.7 },
-      });
-
-// include an anchor point for the star
-// ! position the star atop the anchor, to have the rotation occur around this point
-      const starAnchor = new Anchor({
-        addTo: illustration,
-        translate: { y: 100 },
-        rotate: { z: Math.PI / 10 },
-      });
-
-// draw a star in a group element positioned atop the anchor point
-      const starGroup = new Group({
-        addTo: starAnchor,
-        translate: { x: -70, y: -170 }, // -70 to center the 140 wide shape
-      });
-
-// draw the path describing the star
-      new Shape({
-        addTo: starGroup,
-        path: [
-          { x: 0, y: 45 },
-          { x: 45, y: 45 },
-          { x: 70, y: 0 },
-          { x: 95, y: 45 },
-          { x: 140, y: 45 },
-          { x: 105, y: 80 },
-          { x: 120, y: 130 },
-          { x: 70, y: 105 },
-          { x: 20, y: 130 },
-          { x: 35, y: 80 },
-          { x: 0, y: 45 },
-        ],
-        stroke: 40,
-        color: 'hsl(45, 100%, 58%)',
-      });
-// within the path include a rectangle to remove the gap between the center of the star and its stroke
-      new Rect({
-        addTo: starGroup,
-        width: 40,
-        height: 50,
-        stroke: 40,
-        translate: { x: 70, y: 70 },
-        color: 'hsl(45, 100%, 58%)',
-      });
-
-// include a group for the eyes, positioned halfway through the height of the star
-      const eyesGroup = new Group({
-        addTo: starGroup,
-        translate: { x: 70, y: 72.5, z: 20 },
-      });
-
-// add black circles describing the contour of the eyes, and either end of the star
-      const eye = new Ellipse({
-        addTo: eyesGroup,
-        diameter: 5,
-        stroke: 15,
-        translate: { x: -32.5 },
-        color: 'hsl(0, 0%, 0%)',
-      });
-      eye.copy({
-        translate: { x: 32.5 },
-      });
-
-// add an anchor point for the white part of the eyes
-// by later translating the white part of the eyes, the rotation allows to have the circle rotate around the anchor point
-      const leftEyeAnchor = new Anchor({
-        addTo: eyesGroup,
-        translate: { x: -32.5, z: 0.5 },
-      });
-      const leftEye = new Ellipse({
-        addTo: leftEyeAnchor,
-        diameter: 1,
-        stroke: 5,
-        color: 'hsl(0, 100%, 100%)',
-        translate: { x: -3.5 },
-      });
-
-// copy the left anchor for the right side
-      const rightEyeAnchor = leftEyeAnchor.copyGraph({
-        translate: { x: 32.5, z: 0.5 },
-      });
-
-// include an anchor point for the mouth
-// by centering the mouth around the anchor and scaling the anchor itself, the change in size occurs from the center of the mouth
-      const mouthAnchor = new Anchor({
-        addTo: starGroup,
-        translate: { x: 70, y: 95, z: 20 },
-        scale: 0.8,
-      });
-// draw a mouth with a line and arc commands
-      const mouth = new Shape({
-        addTo: mouthAnchor,
-        path: [
-          { x: -8, y: 0 },
-          { x: 8, y: 0 },
-          {
-            arc: [
-              { x: 4, y: 6 },
-              { x: 0, y: 6 },
-            ],
-          },
-          {
-            arc: [
-              { x: -4, y: 6 },
-              { x: -8, y: 0 },
-            ],
-          },
-        ],
-        stroke: 10,
-        color: 'hsl(358, 100%, 65%)',
-      });
-
-      illustration.updateRenderGraph();
-
-      /* to animate the star, change the transform property as follows
-
-      |variableName|transform|valueRange|
-      |---|---|---|
-      |starAnchor|rotate.z|[Math.PI/10, -Math.PI/10]|
-      |leftIrisAnchor && rightIrisAnchor|rotate.z|[0, Math.PI/2]|
-      |mouthAnchor|scale|[0.8, 1.2]|
-      |shadow|translate.x|[50, -50]|
-      */
-
-// ! I am positive there are much better ways to achieve this animation, but this is my take using anime.js
-// I am still a newbie when it comes to animation
-// create an object describing the values for the different elements
-      const starObject = {
-        star: Math.PI / 10,
-        shadow: 50,
-        mouth: 0.8,
-        eyes: 0
+      handleMouseLeave = () => {
+        document.documentElement.style.setProperty("--scale", 1);
+        document.documentElement.style.setProperty("--x", 0);
+        document.documentElement.style.setProperty("--y", 0);
+      };
+      render() {
+        return (
+            <div id="wrapper" onMouseMove={this.handleMouseMove} onClick={this.handleMouseLeave}>
+              <img id="image" />
+            </div>
+        );
       }
-
-// set up a repeating animation which constantly updates the illustration and updates the desired transform properties according to the object's values
-      const timeline = anime.timeline({
-        duration: 1100,
-        easing: 'easeInOutQuart',
-        direction: 'alternate',
-        loop: true,
-        update: () => {
-          starAnchor.rotate.z = starObject.star;
-          shadow.translate.x = starObject.shadow;
-          mouth.scale = starObject.mouth;
-          leftEyeAnchor.rotate.z = starObject.eyes;
-          rightEyeAnchor.rotate.z = starObject.eyes;
-
-          illustration.updateRenderGraph();
-        }
-      });
-
-// animate the star with a slightly more pronounced easing function
-      timeline.add({
-        targets: starObject,
-        star: -Math.PI/10,
-        easing: 'easeInOutQuint',
-      });
-// have the shadow follow with a small delay
-      timeline.add({
-        targets: starObject,
-        delay: 20,
-        shadow: -50,
-      }, '-=1100')
-
-// with a smaller duration and slightly postponed, animate the mouth and the eyes
-      timeline.add({
-        targets: starObject,
-        mouth: 1.2,
-        duration: 300,
-      }, '-=800');
-
-      timeline.add({
-        targets: starObject,
-        eyes: Math.PI / 2,
-        duration: 900,
-      }, '-=1000');
-
     }
+
+    ReactDOM.render(<App />, document.getElementById("root"));
+
   }
 }
 </script>
-<style>
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-body {
-  min-height: 100vh;
-  /* center the canvas in the viewport */
+<style lang="scss">
+.about {
+  height: 100vh;
+  background-color: #35dad2;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* atop an off-white background include a pattern using the star icon created for the project */
-  background: url('data:image/svg+xml;utf8,<svg opacity="0.15" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 15" width="160" height="150"><g transform="translate(1 1)" stroke-width="2" stroke="%23ffc928" stroke-linecap="round" stroke-linejoin="round" fill="%23ffc928"><path d="M 0 4.5 l 4.5 0 l 2.5 -4.5 l 2.5 4.5 l 4.5 0 l -3.5 3.5 l 1.5 5 l -5 -2.5 l -5 2.5 l 1.5 -5 l -3.5 -3.5"></path></g></svg>'),
-  hsl(0, 0%, 96%);
-  background-size: 40px;
+  align-content: center;
 }
+:root {
+  --scale: 1.5;
+  --y: 0;
+  body {
+    margin: 0;
+    background-color: black;
+    outline: none;
+    border: none;
+    #wrapper {
+      width: 100vw;
+      height: 100vh;
+      #image {
+        width: 100vw;
+        height: 100vh;
+        background-image: url("https://images.unsplash.com/photo-1539035104074-dee66086b5e3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjI0MX0&auto=format&fit=crop&w=2550&q=80");
+        background-size: cover;
+        transform: translateX(var(--x)) translateY(var(--y)) scale(var(--scale));
+        transition: ease-out 0.7s;
 
+      }
+    }
+  }
+}
 </style>
